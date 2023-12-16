@@ -13,19 +13,9 @@ function wait(seconds)
     repeat until os.time() > start + seconds
 end
 
-
--- -- Transform the board's square position in a string
--- function square_to_str(x, y)
---     assert(in_range(x, 1, 8))
---     assert(in_range(y, 1, 8))
-    
---     return string.char(
---       string.byte('a') + x - 1,
---       string.byte('1') + y - 1
---     )
---   end
-  
---   -- Transform the screen input in a board square
---   function screen_xy_to_square_xy(x, y)
---     return math.floor((x - 10) / 40) + 1, 11 - math.floor(y / 40)
---   end
+local clock = os.clock
+function sleep(n)  -- seconds
+   local t0 = clock()
+   while clock() - t0 <= n do
+   end
+end
