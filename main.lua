@@ -13,6 +13,8 @@ local gameover = false
 --Variable to define the phase of the game
 phase = 0
 
+-- Variable to minimize checks
+changed_click = 0
 -- Array of pieces
 local pieces = {
     {id = 'B2', position = {x = 0 * 40 + 20, y = 0 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
@@ -128,12 +130,14 @@ function love.mousepressed(x, y, button, istouch)
             end     
         end
     end
+    changed_click = changed_click + 1
 end
 
 -- Function to change turns
 function love.keypressed(key)
     if key == "space" then
       changing = false
+      changed_click = changed_click + 1
     end
 end
 
@@ -163,111 +167,324 @@ function love.update()
     end
 
     -- Checking occupied spaces
-    for j, board_square in ipairs(board_coordinates) do
-        board_square.status.occupied = false
-        board_square.status.piece_id = ""
-        for k, piece in ipairs(pieces) do
-            if piece.position.square == board_square.id then
-                board_square.status.occupied = true
-                board_square.piece_id = piece.id
-            end
-        end
-    end
-
-    -- Showing available moves
-    if selected_info.selecting then
-        if phase == 0 then  
-            for k, board_square in ipairs(board_coordinates) do
-                if string.sub(selected_info.sel_piece_id, 1, 1) == 'R' and tonumber(string.sub(board_square.id, 2, 2)) <= 4 and not board_square.status.occupied then 
-                    board_square.status.available_move = true
-                elseif string.sub(selected_info.sel_piece_id, 1, 1) == 'B' and tonumber(string.sub(board_square.id, 2, 2)) > 4 and not board_square.status.occupied then
-                    board_square.status.available_move = true
-                else
-                    board_square.status.available_move = false
+    if my_copy0 ~= changed_click then
+        for j, board_square in ipairs(board_coordinates) do
+            board_square.status.occupied = false
+            board_square.status.piece_id = ""
+            for k, piece in ipairs(pieces) do
+                if piece.position.square == board_square.id then
+                    board_square.status.occupied = true
+                    board_square.piece_id = piece.id
                 end
             end
         end
+        my_copy0 = changed_click
+    end    
 
-        if phase == 1 then
-            local sel_col = string.byte(selected_info.sel_sq_col)
-            local sel_row = string.byte(selected_info.sel_sq_row)
-
-            for k, board_square in ipairs(board_coordinates) do
-                local col = string.byte(string.sub(board_square.id, 1, 1))
-                local row = string.byte(string.sub(board_square.id, 2, 2))        
-                if col >= sel_col - 1 and col <= sel_col + 1 then
-                    if row >= sel_row - 1 and row <= sel_row + 1 and not board_square.status.occupied then
+    -- Showing available moves
+    if my_copy1 ~= changed_click then
+        if selected_info.selecting then
+            if phase == 0 then  
+                for k, board_square in ipairs(board_coordinates) do
+                    if string.sub(selected_info.sel_piece_id, 1, 1) == 'R' and tonumber(string.sub(board_square.id, 2, 2)) <= 4 and not board_square.status.occupied then 
+                        board_square.status.available_move = true
+                    elseif string.sub(selected_info.sel_piece_id, 1, 1) == 'B' and tonumber(string.sub(board_square.id, 2, 2)) > 4 and not board_square.status.occupied then
                         board_square.status.available_move = true
                     else
                         board_square.status.available_move = false
                     end
-                end    
-            end
-        end
-    else
-        for k, board_square in ipairs(board_coordinates) do
-            board_square.status.available_move = false
-        end
-    end
-        
-    -- Checking if the set up phase finished
-    if phase == 0 then
-        B_setup_finished = true
-        R_setup_finished = true
-        
-        for k, piece in ipairs(pieces) do
-            if string.sub(piece.id, 1, 1) == 'R' then
-                if piece.position.square == '' then
-                    R_setup_finished = false
                 end
             end
-            if string.sub(piece.id, 1, 1) == 'B' then
-                if piece.position.square == '' then
-                    B_setup_finished = false
+
+            if phase == 1 then
+                sel_col = string.byte(selected_info.sel_sq_col)
+                sel_row = string.byte(selected_info.sel_sq_row)
+                for k, board_square in ipairs(board_coordinates) do
+                    local col = string.byte(string.sub(board_square.id, 1, 1))
+                    local row = string.byte(string.sub(board_square.id, 2, 2))        
+                    if col >= sel_col - 1 and col <= sel_col + 1 then
+                        if row >= sel_row - 1 and row <= sel_row + 1 and not board_square.status.occupied then
+                            board_square.status.available_move = true
+                        else
+                            board_square.status.available_move = false
+                        end
+                    end
                 end
             end
-        end
-        if R_setup_finished then
-            for k, piece in ipairs(pieces) do
-                if string.sub(piece.id, 1, 1) == 'R' then
-                    piece.status.alive = true
-                    piece.status.hidden = true
-                end
-                text = 'B - Set up your pieces'
-            end
-        end
-        if B_setup_finished then
-            for k, piece in ipairs(pieces) do
-                if string.sub(piece.id, 1, 1) == 'B' then
-                    piece.status.alive = true
-                    piece.status.hidden = true
-                end                
-                text = 'R - Make a move'
-                phase = 1
+        else
+            for k, board_square in ipairs(board_coordinates) do
+                board_square.status.available_move = false
             end
         end 
-    end 
+        my_copy1 = changed_click
+    end  
+
+    -- Special pieces available moves
+    if my_copy2 ~= changed_click then
+        if phase == 1 then
+            if string.sub(selected_info.sel_piece_id, 2, 2) == "J" or string.sub(selected_info.sel_piece_id, 2, 2) == "Q" then
+                checking_west = true
+                aux_checking = 1
+                if selected_info.selecting then
+                    while checking_west do
+                        square_checked = string.char(string.byte(string.sub(selected_info.sel_square, 1, 1)) + aux_checking) .. string.sub(selected_info.sel_square, 2, 2)
+                        for k, board_square in ipairs(board_coordinates) do
+                            if square_checked == board_square.id then
+                                if not board_square.status.occupied then
+                                    board_square.status.available_move = true
+                                else
+                                    checking_west = false
+                                    break
+                                end
+                            end
+                        end
+                        aux_checking = aux_checking + 1
+                        if string.byte(string.sub(selected_info.sel_square, 1, 1)) + aux_checking > string.byte("h") then
+                            checking_west = false
+                        end
+                    end
+                end
+                checking_east = true
+                aux_checking = 1
+                if selected_info.selecting then
+                    while checking_east do
+                        square_checked = string.char(string.byte(string.sub(selected_info.sel_square, 1, 1)) - aux_checking) .. string.sub(selected_info.sel_square, 2, 2)
+                        for k, board_square in ipairs(board_coordinates) do
+                            if square_checked == board_square.id then
+                                if not board_square.status.occupied then
+                                    board_square.status.available_move = true
+                                else
+                                    checking_east = false
+                                    break
+                                end
+                            end
+                        end
+                        aux_checking = aux_checking + 1
+                        if string.byte(string.sub(selected_info.sel_square, 1, 1)) - aux_checking < string.byte("a") then
+                            checking_east = false
+                        end
+                    end
+                end
+                checking_north = true
+                aux_checking = 1
+                if selected_info.selecting then
+                    while checking_north do
+                        square_checked = string.sub(selected_info.sel_square, 1, 1) .. string.char(string.byte(string.sub(selected_info.sel_square, 2, 2)) + aux_checking)
+                        for k, board_square in ipairs(board_coordinates) do
+                            if square_checked == board_square.id then
+                                if not board_square.status.occupied then
+                                    board_square.status.available_move = true
+                                else
+                                    checking_north = false
+                                    break
+                                end
+                            end
+                        end
+                        aux_checking = aux_checking + 1
+                        if string.byte(string.sub(selected_info.sel_square, 2, 2)) + aux_checking > string.byte("8") then
+                            checking_north = false
+                        end
+                    end
+                end
+                checking_south = true
+                aux_checking = 1
+                if selected_info.selecting then
+                    while checking_south do
+                        square_checked = string.sub(selected_info.sel_square, 1, 1) .. string.char(string.byte(string.sub(selected_info.sel_square, 2, 2)) - aux_checking)
+                        for k, board_square in ipairs(board_coordinates) do
+                            if square_checked == board_square.id then
+                                if not board_square.status.occupied then
+                                    board_square.status.available_move = true
+                                else
+                                    checking_south = false
+                                    break
+                                end
+                            end
+                        end
+                        aux_checking = aux_checking + 1
+                        if string.byte(string.sub(selected_info.sel_square, 2, 2)) - aux_checking < string.byte("1") then
+                            checking_south = false
+                        end
+                    end
+                end
+            end
+
+            if string.sub(selected_info.sel_piece_id, 2, 2) == "K" or string.sub(selected_info.sel_piece_id, 2, 2) == "Q" then
+                checking_ne = true
+                aux_checking = 1
+                if selected_info.selecting then
+                    while checking_ne do
+                        square_checked = string.char(string.byte(string.sub(selected_info.sel_square, 1, 1)) + aux_checking) .. string.char(string.byte(string.sub(selected_info.sel_square, 2, 2)) + aux_checking)
+                        for k, board_square in ipairs(board_coordinates) do
+                            if square_checked == board_square.id then
+                                if not board_square.status.occupied then
+                                    board_square.status.available_move = true
+                                else
+                                    checking_ne = false
+                                    break
+                                end
+                            end
+                        end
+                        aux_checking = aux_checking + 1
+                        if string.byte(string.sub(selected_info.sel_square, 1, 1)) + aux_checking > string.byte("h") then
+                            checking_ne = false
+                        end
+                    end
+                end
+                checking_nw = true
+                aux_checking = 1
+                if selected_info.selecting then
+                    while checking_nw do
+                        square_checked = string.char(string.byte(string.sub(selected_info.sel_square, 1, 1)) - aux_checking) .. string.char(string.byte(string.sub(selected_info.sel_square, 2, 2)) + aux_checking)
+                        for k, board_square in ipairs(board_coordinates) do
+                            if square_checked == board_square.id then
+                                if not board_square.status.occupied then
+                                    board_square.status.available_move = true
+                                else
+                                    checking_nw = false
+                                    break
+                                end
+                            end
+                        end
+                        aux_checking = aux_checking + 1
+                        if string.byte(string.sub(selected_info.sel_square, 1, 1)) - aux_checking < string.byte("a") then
+                            checking_nw = false
+                        end
+                    end
+                end
+                checking_se = true
+                aux_checking = 1
+                if selected_info.selecting then
+                    while checking_se do
+                        square_checked = string.char(string.byte(string.sub(selected_info.sel_square, 1, 1)) + aux_checking) .. string.char(string.byte(string.sub(selected_info.sel_square, 2, 2)) - aux_checking)
+                        for k, board_square in ipairs(board_coordinates) do
+                            if square_checked == board_square.id then
+                                if not board_square.status.occupied then
+                                    board_square.status.available_move = true
+                                else
+                                    checking_se = false
+                                    break
+                                end
+                            end
+                        end
+                        aux_checking = aux_checking + 1
+                        if string.byte(string.sub(selected_info.sel_square, 2, 2)) - aux_checking < string.byte("1") then
+                            checking_se = false
+                        end
+                    end
+                end
+                checking_sw = true
+                aux_checking = 1
+                if selected_info.selecting then
+                    while checking_sw do
+                        square_checked = string.char(string.byte(string.sub(selected_info.sel_square, 1, 1)) - aux_checking) .. string.char(string.byte(string.sub(selected_info.sel_square, 2, 2)) - aux_checking)
+                        for k, board_square in ipairs(board_coordinates) do
+                            if square_checked == board_square.id then
+                                if not board_square.status.occupied then
+                                    board_square.status.available_move = true
+                                else
+                                    checking_sw = false
+                                    break
+                                end
+                            end
+                        end
+                        aux_checking = aux_checking + 1
+                        if string.byte(string.sub(selected_info.sel_square, 2, 2)) - aux_checking < string.byte("1") then
+                            checking_sw = false
+                        end
+                    end
+                end
+            end
+
+            if string.sub(selected_info.sel_piece_id, 2, 2) == "K" then
+                for k, board_square in ipairs(board_coordinates) do
+                    local col = string.byte(string.sub(board_square.id, 1, 1))
+                    local row = string.byte(string.sub(board_square.id, 2, 2))        
+                    -- if col >= sel_col - 1 and col <= sel_col + 1 then
+                    --     if row >= sel_row - 1 and row <= sel_row + 1 and not board_square.status.occupied then
+                    --         board_square.status.available_move = false
+                    --     end
+                    -- end
+                    if col == sel_col - 1 or col == sel_col + 1 then
+                        if row == sel_row - 2 or row == sel_row + 2 and not board_square.status.occupied then
+                            board_square.status.available_move = true
+                        end
+                    end
+                    if col == sel_col - 2 or col == sel_col + 2 then
+                        if row == sel_row - 1 or row == sel_row + 1 and not board_square.status.occupied then
+                            board_square.status.available_move = true
+                        end
+                    end
+                end
+            end
+        end
+        my_copy2 = changed_click
+    end    
+     
+    -- Checking if the set up phase finished
+    if my_copy3 ~= changed_click then
+        if phase == 0 then
+            B_setup_finished = true
+            R_setup_finished = true
+            
+            for k, piece in ipairs(pieces) do
+                if string.sub(piece.id, 1, 1) == 'R' then
+                    if piece.position.square == '' then
+                        R_setup_finished = false
+                    end
+                end
+                if string.sub(piece.id, 1, 1) == 'B' then
+                    if piece.position.square == '' then
+                        B_setup_finished = false
+                    end
+                end
+            end
+            if R_setup_finished then
+                for k, piece in ipairs(pieces) do
+                    if string.sub(piece.id, 1, 1) == 'R' then
+                        piece.status.alive = true
+                        piece.status.hidden = true
+                    end
+                    text = 'B - Set up your pieces'
+                end
+            end
+            if B_setup_finished then
+                for k, piece in ipairs(pieces) do
+                    if string.sub(piece.id, 1, 1) == 'B' then
+                        piece.status.alive = true
+                        piece.status.hidden = true
+                    end                
+                    text = 'R - Make a move'
+                    phase = 1
+                end
+            end 
+        end
+        my_copy3 = changed_click
+    end     
 
     -- Alternating the turns (phase 1)
     -- First, show all team pieces
-    if not changing then
-        for k, piece in ipairs(pieces) do
-            if string.sub(piece.id, 1, 1) == string.sub(text, 1, 1) then
-                piece.status.hidden = false
-            else
-                piece.status.hidden = true
+    if my_copy4 ~= changed_click then
+        if not changing then
+            for k, piece in ipairs(pieces) do
+                if string.sub(piece.id, 1, 1) == string.sub(text, 1, 1) then
+                    piece.status.hidden = false
+                else
+                    piece.status.hidden = true
+                end
             end
         end
-    end
 
-    -- Second, change team if a valid move was made
-    if phase == 1 then
-        if moved % 2 == 0 then
-            text = 'R - Make a move'
-        else
-            text = 'B - Make a move'
+        -- Second, change team if a valid move was made
+        if phase == 1 then
+            if moved % 2 == 0 then
+                text = 'R - Make a move'
+            else
+                text = 'B - Make a move'
+            end
         end
-    end
+        my_copy4 = changed_click
+    end    
 end
 
 function love.draw()
