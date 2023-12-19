@@ -72,7 +72,7 @@ local square_id = ''
 while cont_rows <= 8 do
     while cont_columns <= 8 do
         square_id = string.sub(columns, cont_columns, cont_columns) .. string.sub(rows, cont_rows, cont_rows)
-        table.insert(board_coordinates, {id = square_id, position = {x = (cont_columns - 1) * 40 + 20, y = (cont_rows + 2) * 40}, status = {occupied = false, piece_id = '', available_move = false}})
+        table.insert(board_coordinates, {id = square_id, position = {x = (cont_columns - 1) * 40 + 20, y = (cont_rows + 2) * 40}, status = {occupied = false, piece_id = '', available_move = false, available_eat = false}})
         cont_columns = cont_columns + 1
     end
     cont_columns = 1
@@ -174,7 +174,7 @@ function love.update()
             for k, piece in ipairs(pieces) do
                 if piece.position.square == board_square.id then
                     board_square.status.occupied = true
-                    board_square.piece_id = piece.id
+                    board_square.status.piece_id = piece.id
                 end
             end
         end
@@ -190,7 +190,7 @@ function love.update()
                         board_square.status.available_move = true
                     elseif string.sub(selected_info.sel_piece_id, 1, 1) == 'B' and tonumber(string.sub(board_square.id, 2, 2)) > 4 and not board_square.status.occupied then
                         board_square.status.available_move = true
-                    else
+                    else                         
                         board_square.status.available_move = false
                     end
                 end
@@ -203,10 +203,17 @@ function love.update()
                     local col = string.byte(string.sub(board_square.id, 1, 1))
                     local row = string.byte(string.sub(board_square.id, 2, 2))        
                     if col >= sel_col - 1 and col <= sel_col + 1 then
-                        if row >= sel_row - 1 and row <= sel_row + 1 and not board_square.status.occupied then
-                            board_square.status.available_move = true
-                        else
-                            board_square.status.available_move = false
+                        if row >= sel_row - 1 and row <= sel_row + 1 then
+                            if not board_square.status.occupied then
+                                board_square.status.available_move = true
+                            else
+                                if (string.sub(board_square.status.piece_id, 1, 1) == "R" and string.sub(selected_info.sel_piece_id, 1, 1) == "B") or (string.sub(board_square.status.piece_id, 1, 1) == "B" and string.sub(selected_info.sel_piece_id, 1, 1) == "R") then
+                                    board_square.status.available_eat = true
+                                    board_square.status.available_move = false
+                                else
+                                    board_square.status.available_move = false
+                                end
+                            end
                         end
                     end
                 end
@@ -214,6 +221,7 @@ function love.update()
         else
             for k, board_square in ipairs(board_coordinates) do
                 board_square.status.available_move = false
+                board_square.status.available_eat = false
             end
         end 
         my_copy1 = changed_click
@@ -223,87 +231,99 @@ function love.update()
     if my_copy2 ~= changed_click then
         if phase == 1 then
             if string.sub(selected_info.sel_piece_id, 2, 2) == "J" or string.sub(selected_info.sel_piece_id, 2, 2) == "Q" then
-                checking_west = true
+                checking_e = true
                 aux_checking = 1
                 if selected_info.selecting then
-                    while checking_west do
+                    while checking_e do
                         square_checked = string.char(string.byte(string.sub(selected_info.sel_square, 1, 1)) + aux_checking) .. string.sub(selected_info.sel_square, 2, 2)
                         for k, board_square in ipairs(board_coordinates) do
                             if square_checked == board_square.id then
                                 if not board_square.status.occupied then
                                     board_square.status.available_move = true
                                 else
-                                    checking_west = false
+                                    checking_e = false
+                                    if (string.sub(board_square.status.piece_id, 1, 1) == "R" and string.sub(selected_info.sel_piece_id, 1, 1) == "B") or (string.sub(board_square.status.piece_id, 1, 1) == "B" and string.sub(selected_info.sel_piece_id, 1, 1) == "R") then
+                                        board_square.status.available_eat = true
+                                    end
                                     break
                                 end
                             end
                         end
                         aux_checking = aux_checking + 1
                         if string.byte(string.sub(selected_info.sel_square, 1, 1)) + aux_checking > string.byte("h") then
-                            checking_west = false
+                            checking_e = false
                         end
                     end
                 end
-                checking_east = true
+                checking_w = true
                 aux_checking = 1
                 if selected_info.selecting then
-                    while checking_east do
+                    while checking_w do
                         square_checked = string.char(string.byte(string.sub(selected_info.sel_square, 1, 1)) - aux_checking) .. string.sub(selected_info.sel_square, 2, 2)
                         for k, board_square in ipairs(board_coordinates) do
                             if square_checked == board_square.id then
                                 if not board_square.status.occupied then
                                     board_square.status.available_move = true
                                 else
-                                    checking_east = false
+                                    checking_w = false
+                                    if (string.sub(board_square.status.piece_id, 1, 1) == "R" and string.sub(selected_info.sel_piece_id, 1, 1) == "B") or (string.sub(board_square.status.piece_id, 1, 1) == "B" and string.sub(selected_info.sel_piece_id, 1, 1) == "R") then
+                                        board_square.status.available_eat = true
+                                    end
                                     break
                                 end
                             end
                         end
                         aux_checking = aux_checking + 1
                         if string.byte(string.sub(selected_info.sel_square, 1, 1)) - aux_checking < string.byte("a") then
-                            checking_east = false
+                            checking_w = false
                         end
                     end
                 end
-                checking_north = true
+                checking_n = true
                 aux_checking = 1
                 if selected_info.selecting then
-                    while checking_north do
+                    while checking_n do
                         square_checked = string.sub(selected_info.sel_square, 1, 1) .. string.char(string.byte(string.sub(selected_info.sel_square, 2, 2)) + aux_checking)
                         for k, board_square in ipairs(board_coordinates) do
                             if square_checked == board_square.id then
                                 if not board_square.status.occupied then
                                     board_square.status.available_move = true
                                 else
-                                    checking_north = false
+                                    checking_n = false
+                                    if (string.sub(board_square.status.piece_id, 1, 1) == "R" and string.sub(selected_info.sel_piece_id, 1, 1) == "B") or (string.sub(board_square.status.piece_id, 1, 1) == "B" and string.sub(selected_info.sel_piece_id, 1, 1) == "R") then
+                                        board_square.status.available_eat = true
+                                    end
                                     break
                                 end
                             end
                         end
                         aux_checking = aux_checking + 1
                         if string.byte(string.sub(selected_info.sel_square, 2, 2)) + aux_checking > string.byte("8") then
-                            checking_north = false
+                            checking_n = false
                         end
                     end
                 end
-                checking_south = true
+                checking_s = true
                 aux_checking = 1
                 if selected_info.selecting then
-                    while checking_south do
+                    while checking_s do
                         square_checked = string.sub(selected_info.sel_square, 1, 1) .. string.char(string.byte(string.sub(selected_info.sel_square, 2, 2)) - aux_checking)
                         for k, board_square in ipairs(board_coordinates) do
                             if square_checked == board_square.id then
                                 if not board_square.status.occupied then
                                     board_square.status.available_move = true
                                 else
-                                    checking_south = false
+                                    checking_s = false
+                                    if (string.sub(board_square.status.piece_id, 1, 1) == "R" and string.sub(selected_info.sel_piece_id, 1, 1) == "B") or (string.sub(board_square.status.piece_id, 1, 1) == "B" and string.sub(selected_info.sel_piece_id, 1, 1) == "R") then
+                                        board_square.status.available_eat = true
+                                    end
                                     break
                                 end
                             end
                         end
                         aux_checking = aux_checking + 1
                         if string.byte(string.sub(selected_info.sel_square, 2, 2)) - aux_checking < string.byte("1") then
-                            checking_south = false
+                            checking_s = false
                         end
                     end
                 end
@@ -321,6 +341,9 @@ function love.update()
                                     board_square.status.available_move = true
                                 else
                                     checking_ne = false
+                                    if (string.sub(board_square.status.piece_id, 1, 1) == "R" and string.sub(selected_info.sel_piece_id, 1, 1) == "B") or (string.sub(board_square.status.piece_id, 1, 1) == "B" and string.sub(selected_info.sel_piece_id, 1, 1) == "R") then
+                                        board_square.status.available_eat = true
+                                    end
                                     break
                                 end
                             end
@@ -342,6 +365,9 @@ function love.update()
                                     board_square.status.available_move = true
                                 else
                                     checking_nw = false
+                                    if (string.sub(board_square.status.piece_id, 1, 1) == "R" and string.sub(selected_info.sel_piece_id, 1, 1) == "B") or (string.sub(board_square.status.piece_id, 1, 1) == "B" and string.sub(selected_info.sel_piece_id, 1, 1) == "R") then
+                                        board_square.status.available_eat = true
+                                    end
                                     break
                                 end
                             end
@@ -363,6 +389,9 @@ function love.update()
                                     board_square.status.available_move = true
                                 else
                                     checking_se = false
+                                    if (string.sub(board_square.status.piece_id, 1, 1) == "R" and string.sub(selected_info.sel_piece_id, 1, 1) == "B") or (string.sub(board_square.status.piece_id, 1, 1) == "B" and string.sub(selected_info.sel_piece_id, 1, 1) == "R") then
+                                        board_square.status.available_eat = true
+                                    end
                                     break
                                 end
                             end
@@ -384,6 +413,9 @@ function love.update()
                                     board_square.status.available_move = true
                                 else
                                     checking_sw = false
+                                    if (string.sub(board_square.status.piece_id, 1, 1) == "R" and string.sub(selected_info.sel_piece_id, 1, 1) == "B") or (string.sub(board_square.status.piece_id, 1, 1) == "B" and string.sub(selected_info.sel_piece_id, 1, 1) == "R") then
+                                        board_square.status.available_eat = true
+                                    end
                                     break
                                 end
                             end
@@ -406,13 +438,25 @@ function love.update()
                     --     end
                     -- end
                     if col == sel_col - 1 or col == sel_col + 1 then
-                        if row == sel_row - 2 or row == sel_row + 2 and not board_square.status.occupied then
-                            board_square.status.available_move = true
+                        if (row == sel_row - 2 or row == sel_row + 2) then
+                            if not board_square.status.occupied then
+                                board_square.status.available_move = true
+                            else
+                                if (string.sub(board_square.status.piece_id, 1, 1) == "R" and string.sub(selected_info.sel_piece_id, 1, 1) == "B") or (string.sub(board_square.status.piece_id, 1, 1) == "B" and string.sub(selected_info.sel_piece_id, 1, 1) == "R") then
+                                    board_square.status.available_eat = true
+                                end
+                            end
                         end
                     end
                     if col == sel_col - 2 or col == sel_col + 2 then
-                        if row == sel_row - 1 or row == sel_row + 1 and not board_square.status.occupied then
-                            board_square.status.available_move = true
+                        if (row == sel_row - 1 or row == sel_row + 1) then
+                            if not board_square.status.occupied then
+                                board_square.status.available_move = true
+                            else
+                                if (string.sub(board_square.status.piece_id, 1, 1) == "R" and string.sub(selected_info.sel_piece_id, 1, 1) == "B") or (string.sub(board_square.status.piece_id, 1, 1) == "B" and string.sub(selected_info.sel_piece_id, 1, 1) == "R") then
+                                    board_square.status.available_eat = true
+                                end
+                            end
                         end
                     end
                 end
@@ -504,6 +548,13 @@ function love.draw()
     for k, sq in ipairs(board_coordinates) do
         if sq.status.available_move then
             love.graphics.draw(love.graphics.newImage(image_path("AV")), sq.position.x, sq.position.y)
+        end
+    end
+
+    -- Drawing available eat
+    for k, sq in ipairs(board_coordinates) do
+        if sq.status.available_eat then
+            love.graphics.draw(love.graphics.newImage(image_path("AE")), sq.position.x, sq.position.y)
         end
     end
 
