@@ -13,52 +13,59 @@ local gameover = false
 --Variable to define the phase of the game
 phase = 0
 
+-- aux_variable to help organizing the cemetery
+R_cem_x = 0
+R_cem_y = 0
+B_cem_x = 0
+B_cem_y = 11
+
 -- Variable to minimize checks
 changed_click = 0
+
 -- Array of pieces
 local pieces = {
-    {id = 'B2', position = {x = 0 * 40 + 20, y = 0 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'B2', position = {x = 1 * 40 + 20, y = 0 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'B3', position = {x = 2 * 40 + 20, y = 0 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'B3', position = {x = 3 * 40 + 20, y = 0 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'B4', position = {x = 4 * 40 + 20, y = 0 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'B4', position = {x = 5 * 40 + 20, y = 0 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'B5', position = {x = 6 * 40 + 20, y = 0 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'B5', position = {x = 7 * 40 + 20, y = 0 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'B6', position = {x = 0 * 40 + 20, y = 1 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'B6', position = {x = 1 * 40 + 20, y = 1 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'B7', position = {x = 2 * 40 + 20, y = 1 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'B7', position = {x = 3 * 40 + 20, y = 1 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'BJ', position = {x = 4 * 40 + 20, y = 1 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'BJ', position = {x = 5 * 40 + 20, y = 1 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'BK', position = {x = 6 * 40 + 20, y = 1 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'BK', position = {x = 7 * 40 + 20, y = 1 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'BQ', position = {x = 2 * 40 + 10, y = 2 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'BQ', position = {x = 3 * 40 + 10, y = 2 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'BA', position = {x = 4 * 40 + 10, y = 2 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'BA', position = {x = 5 * 40 + 10, y = 2 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'BT', position = {x = 6 * 40 + 10, y = 2 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'R2', position = {x = 0 * 40 + 20, y = 11 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'R2', position = {x = 1 * 40 + 20, y = 11 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'R3', position = {x = 2 * 40 + 20, y = 11 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'R3', position = {x = 3 * 40 + 20, y = 11 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'R4', position = {x = 4 * 40 + 20, y = 11 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'R4', position = {x = 5 * 40 + 20, y = 11 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'R5', position = {x = 6 * 40 + 20, y = 11 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'R5', position = {x = 7 * 40 + 20, y = 11 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'R6', position = {x = 0 * 40 + 20, y = 12 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'R6', position = {x = 1 * 40 + 20, y = 12 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'R7', position = {x = 2 * 40 + 20, y = 12 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'R7', position = {x = 3 * 40 + 20, y = 12 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'RJ', position = {x = 4 * 40 + 20, y = 12 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'RJ', position = {x = 5 * 40 + 20, y = 12 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'RK', position = {x = 6 * 40 + 20, y = 12 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'RK', position = {x = 7 * 40 + 10, y = 12 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'RQ', position = {x = 2 * 40 + 10, y = 13 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'RQ', position = {x = 3 * 40 + 10, y = 13 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'RA', position = {x = 4 * 40 + 10, y = 13 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'RA', position = {x = 5 * 40 + 10, y = 13 * 40, square = ""}, active = false, status = {alive = false, hidden = false}},
-    {id = 'RT', position = {x = 6 * 40 + 10, y = 13 * 40, square = ""}, active = false, status = {alive = false, hidden = false}}    
+    {id = 'B2', position = {x = 0 * 40 + 20, y = 0 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'B2', position = {x = 1 * 40 + 20, y = 0 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'B3', position = {x = 2 * 40 + 20, y = 0 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'B3', position = {x = 3 * 40 + 20, y = 0 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'B4', position = {x = 4 * 40 + 20, y = 0 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'B4', position = {x = 5 * 40 + 20, y = 0 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'B5', position = {x = 6 * 40 + 20, y = 0 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'B5', position = {x = 7 * 40 + 20, y = 0 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'B6', position = {x = 0 * 40 + 20, y = 1 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'B6', position = {x = 1 * 40 + 20, y = 1 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'B7', position = {x = 2 * 40 + 20, y = 1 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'B7', position = {x = 3 * 40 + 20, y = 1 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'BJ', position = {x = 4 * 40 + 20, y = 1 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'BJ', position = {x = 5 * 40 + 20, y = 1 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'BK', position = {x = 6 * 40 + 20, y = 1 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'BK', position = {x = 7 * 40 + 20, y = 1 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'BQ', position = {x = 2 * 40 + 10, y = 2 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'BQ', position = {x = 3 * 40 + 10, y = 2 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'BA', position = {x = 4 * 40 + 10, y = 2 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'BA', position = {x = 5 * 40 + 10, y = 2 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'BT', position = {x = 6 * 40 + 10, y = 2 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'R2', position = {x = 0 * 40 + 20, y = 11 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'R2', position = {x = 1 * 40 + 20, y = 11 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'R3', position = {x = 2 * 40 + 20, y = 11 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'R3', position = {x = 3 * 40 + 20, y = 11 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'R4', position = {x = 4 * 40 + 20, y = 11 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'R4', position = {x = 5 * 40 + 20, y = 11 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'R5', position = {x = 6 * 40 + 20, y = 11 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'R5', position = {x = 7 * 40 + 20, y = 11 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'R6', position = {x = 0 * 40 + 20, y = 12 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'R6', position = {x = 1 * 40 + 20, y = 12 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'R7', position = {x = 2 * 40 + 20, y = 12 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'R7', position = {x = 3 * 40 + 20, y = 12 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'RJ', position = {x = 4 * 40 + 20, y = 12 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'RJ', position = {x = 5 * 40 + 20, y = 12 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'RK', position = {x = 6 * 40 + 20, y = 12 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'RK', position = {x = 7 * 40 + 20, y = 12 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'RQ', position = {x = 2 * 40 + 10, y = 13 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'RQ', position = {x = 3 * 40 + 10, y = 13 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'RA', position = {x = 4 * 40 + 10, y = 13 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'RA', position = {x = 5 * 40 + 10, y = 13 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
+    {id = 'RT', position = {x = 6 * 40 + 10, y = 13 * 40, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}}    
 }
 
 -- Board Coordinates
@@ -118,6 +125,50 @@ function love.mousepressed(x, y, button, istouch)
                             end
                         end                        
                     end
+                    if board_square.status.available_eat then
+                        for k, piece in ipairs(pieces) do
+                            if board_square.id == piece.position.square then
+                                piece.status.alive = false
+                                piece.status.hidden = false
+                                piece.status.always_show = true
+                                piece.position.square = ""
+                                if string.sub(piece.id, 1, 1) == "B" then                                  
+                                    piece.position.x = B_cem_x * 40 + 20
+                                    piece.position.y = B_cem_y * 40
+                                    if B_cem_x < 7 then 
+                                        B_cem_x = B_cem_x + 1
+                                    else
+                                        B_cem_x = 0
+                                        B_cem_y = B_cem_y + 1
+                                    end 
+                                else
+                                    piece.position.x = R_cem_x * 40 + 20
+                                    piece.position.y = R_cem_y * 40
+                                    if R_cem_x < 7 then 
+                                        R_cem_x = R_cem_x + 1
+                                    else
+                                        R_cem_x = 0
+                                        R_cem_y = R_cem_y + 1
+                                    end
+                                end
+                            end
+                        end
+                        for k, piece in ipairs(pieces) do
+                            if piece.active then
+                                piece.position.square = board_square.id
+                                piece.position.x = board_square.position.x
+                                piece.position.y = board_square.position.y
+                                piece.status.always_show = true
+                                if phase == 1 then
+                                    moved = moved + 1
+                                    for _, piece in ipairs(pieces) do
+                                        piece.status.hidden = true
+                                    end
+                                    changing = true
+                                end                          
+                            end
+                        end             
+                    end
                 end   
             end
             selected_info.selecting = false
@@ -131,6 +182,48 @@ function love.mousepressed(x, y, button, istouch)
         end
     end
     changed_click = changed_click + 1
+
+    -- Função auxiliar para debuggar
+    if button == 2 then
+        print("Select_info -> Selecting")
+        print(selected_info.selecting)
+        print("Select_info -> sel_square")
+        print(selected_info.sel_square)
+        print("Select_info -> sel_piece_id")
+        print(selected_info.sel_piece_id)
+        for k, piece in ipairs(pieces) do
+            if in_range(x, piece.position.x, piece.position.x + 40) and in_range(y, piece.position.y, piece.position.y + 40) then
+                print("pieces -> id")
+                print(piece.id)
+                print("pieces -> position.square")
+                print(piece.position.square)
+                print("pieces -> active")
+                print(piece.active)
+                print("pieces -> status.alive")
+                print(piece.status.alive)
+                print("pieces -> status.hidden")
+                print(piece.status.hidden)
+                print("pieces -> status.always_show")
+                print(piece.status.always_show)
+            end
+        end
+        for j, board_square in ipairs(board_coordinates) do 
+            if in_range(love.mouse.getX(), board_square.position.x, board_square.position.x + 39) and in_range(love.mouse.getY(), board_square.position.y, board_square.position.y + 39) then
+                -- {id = square_id, position = {x = (cont_columns - 1) * 40 + 20, y = (cont_rows + 2) * 40}, status = {occupied = false, piece_id = '', available_move = false, available_eat = false}}
+                print("board_coordinates -> id")
+                print(board_square.id)
+                print("board_coordinates -> status.occupied")
+                print(board_square.status.occupied)
+                print("board_coordinates -> status.piece_id")
+                print(board_square.status.piece_id)
+                print("board_coordinates -> status.available_move")
+                print(board_square.status.available_move)
+                print("board_coordinates -> status.available_eat")
+                print(board_square.status.available_eat)
+            end
+        end
+        print("_____________________________")
+    end
 end
 
 -- Function to change turns
@@ -499,6 +592,7 @@ function love.update()
                         piece.status.hidden = true
                     end                
                     text = 'R - Make a move'
+                    changing = true
                     phase = 1
                 end
             end 
@@ -537,7 +631,7 @@ function love.draw()
 
     -- Drawing the pieces
     for k, piece in ipairs(pieces) do
-        if piece.status.hidden then
+        if piece.status.hidden and not piece.status.always_show then
             love.graphics.draw(love.graphics.newImage(image_path(string.sub(piece.id, 1, 1) .. 'H')), piece.position.x, piece.position.y)
         else    
             love.graphics.draw(images[piece.id], piece.position.x, piece.position.y)
