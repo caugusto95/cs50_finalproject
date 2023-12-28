@@ -16,6 +16,8 @@ function battle_success(atk, def)
     if atk == "A" then
         if def == "K" or def == "Q" or def == "J" then
             return true
+        elseif def == "A" then
+            return "draw"
         else
             return false
         end
