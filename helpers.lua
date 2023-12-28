@@ -8,6 +8,39 @@ function in_range(number, low, high)
     return (number >= low) and (number <= high)
 end
 
+-- Function to attribute with pieces survives a battle
+function battle_success(atk, def)
+    if atk == "T" or def =="T" then
+        return "gameover"
+    end
+    if atk == "A" then
+        if def == "K" or def == "Q" or def == "J" then
+            return true
+        else
+            return false
+        end
+    end
+    if atk == "K" or atk == "Q" or atk == "J" then
+        if def == "A" then
+            return false
+        else
+            return true
+        end
+    end
+    local number_atk = tonumber(atk)
+    local number_def = tonumber(def)
+    if number_atk ~= nil then
+        if def == "K" or def == "Q" or def == "J" then
+            return false
+        elseif def == "A" or number_atk > number_def then
+            return true
+        elseif number_atk == number_def then
+            return "draw"
+        else
+            return false
+        end
+    end
+end
 -- Recursive check availability
 
 -- function check_sp_sq(piece_sq, check_sq, board, way)

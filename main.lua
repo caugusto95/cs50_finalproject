@@ -128,46 +128,128 @@ function love.mousepressed(x, y, button, istouch)
                     if board_square.status.available_eat then
                         for k, piece in ipairs(pieces) do
                             if board_square.id == piece.position.square then
-                                piece.status.alive = false
-                                piece.status.hidden = false
                                 piece.status.always_show = true
-                                piece.position.square = ""
-                                if string.sub(piece.id, 1, 1) == "B" then                                  
-                                    piece.position.x = B_cem_x * 40 + 20
-                                    piece.position.y = B_cem_y * 40
-                                    if B_cem_x < 7 then 
-                                        B_cem_x = B_cem_x + 1
+                                if battle_success(string.sub(selected_info.sel_piece_id, 2, 2), string.sub(piece.id, 2, 2)) == "gameover" then
+                                    gameover = true
+                                elseif battle_success(string.sub(selected_info.sel_piece_id, 2, 2), string.sub(piece.id, 2, 2)) == "draw" then
+                                    piece.status.alive = false
+                                    piece.status.hidden = false
+                                    piece.position.square = ""
+                                    if string.sub(piece.id, 1, 1) == "B" then                                  
+                                        piece.position.x = B_cem_x * 40 + 20
+                                        piece.position.y = B_cem_y * 40
+                                        if B_cem_x < 7 then 
+                                            B_cem_x = B_cem_x + 1
+                                        else
+                                            B_cem_x = 0
+                                            B_cem_y = B_cem_y + 1
+                                        end 
                                     else
-                                        B_cem_x = 0
-                                        B_cem_y = B_cem_y + 1
-                                    end 
-                                else
-                                    piece.position.x = R_cem_x * 40 + 20
-                                    piece.position.y = R_cem_y * 40
-                                    if R_cem_x < 7 then 
-                                        R_cem_x = R_cem_x + 1
-                                    else
-                                        R_cem_x = 0
-                                        R_cem_y = R_cem_y + 1
+                                        piece.position.x = R_cem_x * 40 + 20
+                                        piece.position.y = R_cem_y * 40
+                                        if R_cem_x < 7 then 
+                                            R_cem_x = R_cem_x + 1
+                                        else
+                                            R_cem_x = 0
+                                            R_cem_y = R_cem_y + 1
+                                        end
                                     end
+                                    for k2, piece2 in ipairs(pieces) do
+                                        if piece2.active then
+                                            piece2.status.alive = false
+                                            piece2.position.square = ""
+                                            piece2.status.always_show = true
+                                            if string.sub(piece2.id, 1, 1) == "B" then                                  
+                                                piece2.position.x = B_cem_x * 40 + 20
+                                                piece2.position.y = B_cem_y * 40
+                                                if B_cem_x < 7 then 
+                                                    B_cem_x = B_cem_x + 1
+                                                else
+                                                    B_cem_x = 0
+                                                    B_cem_y = B_cem_y + 1
+                                                end 
+                                            else
+                                                piece2.position.x = R_cem_x * 40 + 20
+                                                piece2.position.y = R_cem_y * 40
+                                                if R_cem_x < 7 then 
+                                                    R_cem_x = R_cem_x + 1
+                                                else
+                                                    R_cem_x = 0
+                                                    R_cem_y = R_cem_y + 1
+                                                end
+                                            end                        
+                                        end
+                                    end
+                                elseif battle_success(string.sub(selected_info.sel_piece_id, 2, 2), string.sub(piece.id, 2, 2)) then
+                                    piece.status.alive = false
+                                    piece.status.hidden = false
+                                    piece.position.square = ""
+                                    if string.sub(piece.id, 1, 1) == "B" then                                  
+                                        piece.position.x = B_cem_x * 40 + 20
+                                        piece.position.y = B_cem_y * 40
+                                        if B_cem_x < 7 then 
+                                            B_cem_x = B_cem_x + 1
+                                        else
+                                            B_cem_x = 0
+                                            B_cem_y = B_cem_y + 1
+                                        end 
+                                    else
+                                        piece.position.x = R_cem_x * 40 + 20
+                                        piece.position.y = R_cem_y * 40
+                                        if R_cem_x < 7 then 
+                                            R_cem_x = R_cem_x + 1
+                                        else
+                                            R_cem_x = 0
+                                            R_cem_y = R_cem_y + 1
+                                        end
+                                    end
+                                    for k2, piece2 in ipairs(pieces) do
+                                        if piece2.active then
+                                            piece2.position.square = board_square.id
+                                            piece2.position.x = board_square.position.x
+                                            piece2.position.y = board_square.position.y
+                                            piece2.status.always_show = true                          
+                                        end
+                                    end
+                                    break 
+                                elseif not battle_success(string.sub(selected_info.sel_piece_id, 2, 2), string.sub(piece.id, 2, 2)) then
+                                    for k2, piece2 in ipairs(pieces) do
+                                        if piece2.active then
+                                            piece2.status.alive = false
+                                            piece2.position.square = ""
+                                            piece2.status.always_show = true
+                                            if string.sub(piece2.id, 1, 1) == "B" then                                  
+                                                piece2.position.x = B_cem_x * 40 + 20
+                                                piece2.position.y = B_cem_y * 40
+                                                if B_cem_x < 7 then 
+                                                    B_cem_x = B_cem_x + 1
+                                                else
+                                                    B_cem_x = 0
+                                                    B_cem_y = B_cem_y + 1
+                                                end 
+                                            else
+                                                piece2.position.x = R_cem_x * 40 + 20
+                                                piece2.position.y = R_cem_y * 40
+                                                if R_cem_x < 7 then 
+                                                    R_cem_x = R_cem_x + 1
+                                                else
+                                                    R_cem_x = 0
+                                                    R_cem_y = R_cem_y + 1
+                                                end
+                                            end                        
+                                        end
+                                    end   
                                 end
+                                break
                             end
                         end
-                        for k, piece in ipairs(pieces) do
-                            if piece.active then
-                                piece.position.square = board_square.id
-                                piece.position.x = board_square.position.x
-                                piece.position.y = board_square.position.y
-                                piece.status.always_show = true
-                                if phase == 1 then
-                                    moved = moved + 1
-                                    for _, piece in ipairs(pieces) do
-                                        piece.status.hidden = true
-                                    end
-                                    changing = true
-                                end                          
+                        if phase == 1 then
+                            moved = moved + 1
+                            for _, piece in ipairs(pieces) do
+                                piece.status.hidden = true
                             end
-                        end             
+                            changing = true
+                        end                                       
                     end
                 end   
             end
