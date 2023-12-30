@@ -22,6 +22,8 @@ B_cem_y = 0
 -- Variable to minimize checks
 changed_click = 0
 
+-- Resize factor
+resize = 1.5
 -- Array of pieces
 local pieces = {
     {id = 'B2', position = {x = 1 * 40, y = 0 * 40 + 10, square = ""}, active = false, status = {alive = false, hidden = false, always_show = false}},
@@ -87,7 +89,7 @@ while cont_rows <= 7 do
 end
 
 -- Functions to move pieces
-selected_info = {selecting = false, sel_square = "", sel_sq_row = "", sel_sq_col = "", sel_piece_id = ""}
+selected_info = {selecting = false, sel_square = "", sel_sq_row = "", sel_sq_col = "", sel_piece_id = "", sel_piece_always_show = false}
 moved = 0
 
 -- V2: No drag and dropping, selecting and chosing between available moves
@@ -95,7 +97,7 @@ function love.mousepressed(x, y, button, istouch)
     if button == 1 then
         if selected_info.selecting == false then
             for k, piece in ipairs(pieces) do
-                if in_range(x, piece.position.x, piece.position.x + 40) and in_range(y, piece.position.y, piece.position.y + 40) then
+                if in_range(x, piece.position.x * resize, (piece.position.x + 39) * resize) and in_range(y, piece.position.y * resize, (piece.position.y + 39) * resize) then
                     if string.sub(piece.id, 1, 1) == string.sub(text, 1, 1) then
                         piece.active = true
                         selected_info.selecting = true
@@ -103,12 +105,13 @@ function love.mousepressed(x, y, button, istouch)
                         selected_info.sel_piece_id = piece.id
                         selected_info.sel_sq_col = string.sub(selected_info.sel_square, 1, 1)
                         selected_info.sel_sq_row = string.sub(selected_info.sel_square, 2, 2)
+                        selected_info.sel_piece_always_show = piece.status.always_show
                     end
                 end
             end
         else
             for j, board_square in ipairs(board_coordinates) do 
-                if in_range(love.mouse.getX(), board_square.position.x, board_square.position.x + 39) and in_range(love.mouse.getY(), board_square.position.y, board_square.position.y + 39) then
+                if in_range(love.mouse.getX(), board_square.position.x * resize, (board_square.position.x + 39) * resize) and in_range(love.mouse.getY(), board_square.position.y * resize, (board_square.position.y + 39)  * resize) then
                     if board_square.status.available_move then
                         for k, piece in ipairs(pieces) do
                             if piece.active then
@@ -337,6 +340,11 @@ end
 
 function love.update()
     if gameover then
+        if moved % 2 == 0 then
+            text = "Congratulations, the Owls have won the game!"
+        else
+            text = "Congratulations, the Ravens have won the game!"
+        end
         return
     end
 
@@ -375,17 +383,19 @@ function love.update()
                 sel_row = string.byte(selected_info.sel_sq_row)
                 for k, board_square in ipairs(board_coordinates) do
                     local col = string.byte(string.sub(board_square.id, 1, 1))
-                    local row = string.byte(string.sub(board_square.id, 2, 2))        
-                    if col >= sel_col - 1 and col <= sel_col + 1 then
-                        if row >= sel_row - 1 and row <= sel_row + 1 then
-                            if not board_square.status.occupied then
-                                board_square.status.available_move = true
-                            else
-                                if (string.sub(board_square.status.piece_id, 1, 1) == "R" and string.sub(selected_info.sel_piece_id, 1, 1) == "B") or (string.sub(board_square.status.piece_id, 1, 1) == "B" and string.sub(selected_info.sel_piece_id, 1, 1) == "R") then
-                                    board_square.status.available_eat = true
-                                    board_square.status.available_move = false
+                    local row = string.byte(string.sub(board_square.id, 2, 2))
+                    if not selected_info.sel_piece_always_show then        
+                        if col >= sel_col - 1 and col <= sel_col + 1 then
+                            if row >= sel_row - 1 and row <= sel_row + 1 then
+                                if not board_square.status.occupied then
+                                    board_square.status.available_move = true
                                 else
-                                    board_square.status.available_move = false
+                                    if (string.sub(board_square.status.piece_id, 1, 1) == "R" and string.sub(selected_info.sel_piece_id, 1, 1) == "B") or (string.sub(board_square.status.piece_id, 1, 1) == "B" and string.sub(selected_info.sel_piece_id, 1, 1) == "R") then
+                                        board_square.status.available_eat = true
+                                        board_square.status.available_move = false
+                                    else
+                                        board_square.status.available_move = false
+                                    end
                                 end
                             end
                         end
@@ -707,6 +717,7 @@ function love.update()
 end
 
 function love.draw()
+    love.graphics.scale(1.5, 1.5)
     -- Drawing the game board
     love.graphics.draw(images['board'], 30, 140)
 
