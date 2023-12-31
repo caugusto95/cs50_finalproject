@@ -1,4 +1,4 @@
--- RADUKA GAME
+-- Battle of Wings GAME
 -- Import helpers functions
 require('helpers')
 -- Array of sprites of the game
