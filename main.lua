@@ -1,6 +1,21 @@
 -- Battle of Wings GAME
 -- Import helpers functions
 require('helpers')
+
+-- Main Menu
+local function newButton(text, fn)
+    return {
+        text = text,
+        fn = fn,
+        now = false,
+        last = false
+    }
+end
+
+local buttons = {}
+local font = nil
+
+game_menu = 0
 -- Array of sprites of the game
 local images = {}
 
@@ -319,6 +334,31 @@ function love.keypressed(key)
 end
 
 function love.load()
+    -- Buttons for main menu
+    font = love.graphics.newFont(24)
+
+    table.insert(buttons, newButton(
+        "Start Game",
+        function()
+            print("Starting game")
+            game_menu = 1
+        end
+    ))
+    
+    table.insert(buttons, newButton(
+        "How to Play",
+        function()
+            print("Tutorial")
+        end
+    ))
+
+    table.insert(buttons, newButton(
+        "Exit Game",
+        function()
+            love.event.quit(0)
+        end
+    ))
+
     -- Add board image to array of images to be drawn
     images['board'] = love.graphics.newImage(image_path('board'))
     -- Add pieces images to array of images
@@ -335,7 +375,6 @@ function love.load()
         cont_types = 1
         cont_teams = cont_teams + 1
     end
-
 end
 
 function love.update()
@@ -717,34 +756,110 @@ function love.update()
 end
 
 function love.draw()
-    love.graphics.scale(1.5, 1.5)
-    -- Drawing the game board
-    love.graphics.draw(images['board'], 30, 140)
+    local ww = love.graphics.getWidth()
+    local wh = love.graphics.getHeight()
+    local margin = 30
 
-    -- Drawing the pieces
-    for k, piece in ipairs(pieces) do
-        if piece.status.hidden and not piece.status.always_show then
-            love.graphics.draw(love.graphics.newImage(image_path(string.sub(piece.id, 1, 1) .. 'H')), piece.position.x, piece.position.y)
-        else    
-            love.graphics.draw(images[piece.id], piece.position.x, piece.position.y)
+    local button_width = ww * (1/3)
+    local button_height = 50
+    local cursor_y = 100
+
+    local total_height = (button_height + margin) * #buttons
+
+    if game_menu == 0 then
+
+        love.graphics.reset()
+        love.graphics.scale(3.5, 3.5) 
+        love.graphics.draw(love.graphics.newImage(image_path("Icon_Jogo")), (ww * 0.5 / 3.5 - 20), 25)
+        love.graphics.reset()
+
+        love.graphics.setColor(0.5, 0.5, 0.5, 1)
+        game_name = "Battle of Wings"
+        font = love.graphics.newFont(48)
+        love.graphics.print(
+            game_name,
+                font,
+                (ww * 0.5) - font:getWidth(game_name) * 0.5,
+                235 + font:getHeight(game_name) * 0.5
+            )
+        font = love.graphics.newFont(24)
+
+        for i, button in ipairs(buttons) do
+            button.last = button.now
+
+            local bx = (ww * 0.5) - (button_width * 0.5)
+            local by = (wh * 0.5) - (total_height * 0.5) + cursor_y
+
+            local color = {0.4, 0.4, 0.5, 1.0}
+            local mx, my = love.mouse.getPosition()
+
+            local hot = mx > bx and mx < bx + button_width and
+                        my > by and my < by + button_height
+
+            if hot then
+                color = {0.8, 0.8, 0.9, 1.0}
+            end
+
+            button.now = love.mouse.isDown(1)
+
+            if button.now and not button.last and hot then
+                button.fn()
+            end
+
+            love.graphics.setColor(unpack(color))
+            love.graphics.rectangle(
+                "fill",
+                bx,
+                by,
+                button_width,
+                button_height
+            )
+
+            love.graphics.setColor(0, 0, 0, 1)
+
+            local textW = font:getWidth(button.text)
+            local textH = font:getHeight(button.text)
+
+            love.graphics.print(
+                button.text,
+                font,
+                (ww * 0.5) - textW * 0.5,
+                by + textH * 0.5
+            )
+
+            cursor_y = cursor_y + (button_height + margin)
         end
-    end
+    else
+        love.graphics.reset() 
+        love.graphics.scale(1.5, 1.5)
+        -- Drawing the game board
+        love.graphics.draw(images['board'], 30, 140)
 
-    -- Drawing available moves
-    for k, sq in ipairs(board_coordinates) do
-        if sq.status.available_move then
-            love.graphics.draw(love.graphics.newImage(image_path("AV")), sq.position.x, sq.position.y)
+        -- Drawing the pieces
+        for k, piece in ipairs(pieces) do
+            if piece.status.hidden and not piece.status.always_show then
+                love.graphics.draw(love.graphics.newImage(image_path(string.sub(piece.id, 1, 1) .. 'H')), piece.position.x, piece.position.y)
+            else    
+                love.graphics.draw(images[piece.id], piece.position.x, piece.position.y)
+            end
         end
-    end
 
-    -- Drawing available eat
-    for k, sq in ipairs(board_coordinates) do
-        if sq.status.available_eat then
-            love.graphics.draw(love.graphics.newImage(image_path("AE")), sq.position.x, sq.position.y)
+        -- Drawing available moves
+        for k, sq in ipairs(board_coordinates) do
+            if sq.status.available_move then
+                love.graphics.draw(love.graphics.newImage(image_path("AV")), sq.position.x, sq.position.y)
+            end
         end
-    end
 
-        
-    -- Drawing the orientation text
-    love.graphics.print({{255, 255, 255}, text}, 0, 580, 0, 1, 1, -3, -3)
+        -- Drawing available eat
+        for k, sq in ipairs(board_coordinates) do
+            if sq.status.available_eat then
+                love.graphics.draw(love.graphics.newImage(image_path("AE")), sq.position.x, sq.position.y)
+            end
+        end
+
+            
+        -- Drawing the orientation text
+        love.graphics.print({{255, 255, 255}, text}, 0, 580, 0, 1, 1, -3, -3)
+    end
 end
