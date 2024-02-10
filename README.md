@@ -2,7 +2,7 @@
 #### Video Demo:  <URL https://youtu.be/g2ajBUgx-yE>
 #### Description:
 
-Battle of wings is an strategy two player game, which each one will play as two clans of birds, the owls and the ravens, sworn enemys on a quest to destroy each other by finding the other's nest to defeat them.
+Battle of wings is an strategy two player game, which each player will play as one of two clans of birds, the owls and the ravens, sworn enemys on a quest to destroy each other by finding the other's nest to defeat them.
 
 The game is played on a 7x7 grid, and the first step of the game is to set up your teams pieces at the board, including your nest and each one of the 10 pairs of pieces each teams have. Once they are all settled down on the board, the other team must do the same thing, without knowing the location of the enemy pieces. They will be all hidden until the battles are made. Let's dive in what each piece is.
 

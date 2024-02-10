@@ -325,11 +325,14 @@ function love.mousepressed(x, y, button, istouch)
     end
 end
 
--- Function to change turns
+-- Function to change turns and escape game 
 function love.keypressed(key)
     if key == "space" then
       changing = false
       changed_click = changed_click + 1
+    end
+    if key == "escape" then
+        love.event.quit(0)
     end
 end
 
@@ -349,6 +352,7 @@ function love.load()
         "How to Play",
         function()
             print("Tutorial")
+            game_menu = 2
         end
     ))
 
@@ -775,13 +779,17 @@ function love.draw()
 
         love.graphics.setColor(0.5, 0.5, 0.5, 1)
         game_name = "Battle of Wings"
-        font = love.graphics.newFont(48)
-        love.graphics.print(
-            game_name,
-                font,
-                (ww * 0.5) - font:getWidth(game_name) * 0.5,
-                235 + font:getHeight(game_name) * 0.5
-            )
+        -- font = love.graphics.newFont(48)
+        -- love.graphics.print(
+        --     game_name,
+        --         font,
+        --         (ww * 0.5) - font:getWidth(game_name) * 0.5,
+        --         235 + font:getHeight(game_name) * 0.5
+        --     )
+        love.graphics.scale(1.25, 1.25)
+        love.graphics.draw(love.graphics.newImage(image_path("menu_logo")), 50, 200)
+        love.graphics.reset()
+
         font = love.graphics.newFont(24)
 
         for i, button in ipairs(buttons) do
@@ -829,6 +837,79 @@ function love.draw()
 
             cursor_y = cursor_y + (button_height + margin)
         end
+    elseif game_menu == 2 then
+        love.graphics.reset() 
+        love.graphics.scale(1, 1)
+        love.graphics.draw(love.graphics.newImage(image_path("HTP_p1")), 0, 0)
+
+        local b_x = 390
+        local b_y = 830
+
+        local m_x, m_y = love.mouse.getPosition()
+
+        local hot2 = m_x > b_x and m_x < 535 and
+                    m_y > b_y and m_y < 885
+
+        local now = love.mouse.isDown(1)
+        if hot2 then
+            love.graphics.rectangle(
+                "line",
+                b_x,
+                b_y,
+                145,
+                55
+            )
+            if now then
+                game_menu = 3
+            end
+        end
+
+    elseif game_menu == 3 then
+        love.graphics.reset() 
+        love.graphics.scale(1, 1)
+        love.graphics.draw(love.graphics.newImage(image_path("HTP_p2")), 0, 0)
+
+        local b_x = 5
+        local b_y = 830
+
+        local b_x2 = 180
+        local b_y2 = 830
+
+        local m_x, m_y = love.mouse.getPosition()
+
+        local hot2 = m_x > b_x and m_x < 180 and
+                    m_y > b_y and m_y < 885
+
+        local hot3 = m_x > b_x2 and m_x < 365 and
+                    m_y > b_y2 and m_y < 885
+
+        local now2 = love.mouse.isDown(1)
+        if hot2 then
+            love.graphics.rectangle(
+                "line",
+                b_x,
+                b_y,
+                175,
+                55
+            )
+            if now2 then
+                game_menu = 2
+            end
+        end
+
+        if hot3 then
+            love.graphics.rectangle(
+                "line",
+                b_x2,
+                b_y2,
+                185,
+                55
+            )
+            if now2 then
+                game_menu = 0
+            end
+        end
+
     else
         love.graphics.reset() 
         love.graphics.scale(1.5, 1.5)
